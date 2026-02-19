@@ -107,15 +107,16 @@ IDP-V/
 ### Installation & Setup
 
 #### 1️⃣ Python ML Engine
-```bash
+```powershell
 cd python-engine
 pip install -r requirements.txt
 python main.py
 ```
-**Server running at:** `http://localhost:8000`
+**Server running at:** `http://localhost:8000`  
+**API Docs:** `http://localhost:8000/docs`
 
 #### 2️⃣ Backend API Server
-```bash
+```powershell
 cd backend
 npm install
 npm start
@@ -123,12 +124,30 @@ npm start
 **Server running at:** `http://localhost:5000`
 
 #### 3️⃣ Frontend Application
-```bash
+```powershell
 cd frontend
 npm install
 npm start
 ```
 **Application opens at:** `http://localhost:3000`
+
+#### 🚀 Quick Start (Run All Servers)
+```powershell
+# Terminal 1 - Python Engine
+cd python-engine; python main.py
+
+# Terminal 2 - Backend (new terminal)
+cd backend; npm start
+
+# Terminal 3 - Frontend (new terminal)
+cd frontend; npm start
+```
+
+#### 🛑 Stop All Servers
+```powershell
+# Kill all processes on ports 3000, 5000, 8000
+Get-NetTCPConnection -LocalPort 3000,5000,8000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+```
 
 > **Note:** All three services must be running simultaneously for the application to work.
 
@@ -276,10 +295,23 @@ REACT_APP_API_URL=http://localhost:5000/api
 ## 🔧 Troubleshooting
 
 ### Transformer Model Issues
-```bash
+```powershell
 pip install transformers torch accelerate
-# Clear cache if needed
-rm -rf ~/.cache/huggingface/transformers
+# Clear cache if needed (Windows)
+Remove-Item -Recurse -Force $env:USERPROFILE\.cache\huggingface\transformers
+```
+
+### Port Already in Use
+```powershell
+# Check what's using the port
+netstat -ano | findstr :8000
+
+# Kill the process (replace PID with actual process ID)
+taskkill /PID <PID> /F
+
+# Or kill all Node/Python processes
+taskkill /F /IM node.exe
+taskkill /F /IM python.exe
 ```
 
 ### File Upload Errors
@@ -287,32 +319,64 @@ rm -rf ~/.cache/huggingface/transformers
 - Check file format (CSV/TXT/XLSX only)
 - Ensure correct text column name for CSV/Excel
 - Review backend logs for detailed error messages
+- Check file encoding is UTF-8
 
 ### MongoDB Connection
 - Application works without MongoDB (results won't persist)
 - Verify MongoDB is running: `mongod --version`
 - Check connection string in `backend/.env`
+- Install MongoDB Community Edition if needed
 
 ### Frontend Build Issues
-```bash
-rm -rf node_modules package-lock.json
+```powershell
+Remove-Item -Recurse -Force node_modules, package-lock.json
 npm install
 npm start
+```
+
+### Python Dependencies Issues
+```powershell
+# Use virtual environment (recommended)
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+
+# Or install packages individually
+pip install fastapi uvicorn pandas vaderSentiment scikit-learn
 ```
 
 ---
 
 ## 🎯 Future Enhancements
 
-- [ ] Real-time streaming analysis
-- [ ] Multi-language sentiment support
-- [ ] Custom model fine-tuning
-- [ ] Export reports (PDF/Excel)
-- [ ] API authentication & rate limiting
-- [ ] Docker containerization
-- [ ] Cloud deployment (AWS/Azure/GCP)
-- [ ] Social media integration
+- [ ] Real-time streaming analysis (WebSocket support)
+- [ ] Multi-language sentiment support (multilingual BERT)
+- [ ] Custom model fine-tuning interface
+- [ ] Export reports (PDF/Excel with charts)
+- [ ] API authentication & rate limiting (JWT/OAuth2)
+- [ ] Docker containerization with docker-compose
+- [ ] Cloud deployment templates (AWS/Azure/GCP)
+- [ ] Social media integration (Twitter/Reddit API)
 - [ ] Advanced NLP features (entity extraction, topic modeling)
+- [ ] User authentication and saved analysis sessions
+- [ ] Collaborative workspace for teams
+- [ ] Webhook notifications for batch completion
+
+---
+
+## ✅ Implemented Features
+
+- ✅ Dual ML models (VADER + DistilBERT transformer)
+- ✅ Parallel processing with multi-core optimization
+- ✅ Batch file upload (CSV, TXT, XLSX)
+- ✅ Time-series trend analysis with predictions
+- ✅ Synthetic dataset generation
+- ✅ Performance benchmarking
+- ✅ MongoDB integration for persistence
+- ✅ RESTful API with comprehensive endpoints
+- ✅ Modern React UI with glassmorphism design
+- ✅ Interactive charts and visualizations
+- ✅ Responsive cross-device compatibility
 
 ---
 
@@ -347,7 +411,9 @@ This project is licensed under the MIT License - feel free to use it in your own
 ## 📞 Support & Contact
 
 For issues, questions, or feature requests:
-- Check the documentation above
+- **GitHub Repository**: [Abhiram1106/Sentimental_analysis_IDP](https://github.com/Abhiram1106/Sentimental_analysis_IDP)
+- **Documentation**: See `API_DOCUMENTATION.md` and `PROJECT_SUMMARY.md`
+- **Issues**: Open a GitHub issue for bug reports
 - Review logs for error details
 - Ensure all services are running
 - Verify dependencies are properly installed
@@ -358,4 +424,5 @@ For issues, questions, or feature requests:
 
 🚀 **Version**: 2.0  
 📅 **Updated**: February 2026  
-⭐ **Status**: Production Ready
+⭐ **Status**: Production Ready  
+🔗 **Repository**: [Sentimental_analysis_IDP](https://github.com/Abhiram1106/Sentimental_analysis_IDP)
