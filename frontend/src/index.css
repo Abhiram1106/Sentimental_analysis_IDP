@@ -252,8 +252,8 @@ a:focus {
   border-bottom: 2px solid transparent;
   border-image: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%);
   border-image-slice: 1;
-  padding: var(--spacing-6) 0;
-  margin-bottom: var(--spacing-8);
+  padding: var(--spacing-4) 0;
+  margin-bottom: var(--spacing-6);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
   position: relative;
   overflow: hidden;
@@ -272,7 +272,7 @@ a:focus {
 }
 
 .header h1 {
-  font-size: 2.25rem;
+  font-size: 1.875rem;
   font-weight: 800;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, var(--info) 100%);
   -webkit-background-clip: text;
@@ -289,9 +289,9 @@ a:focus {
 }
 
 .header p {
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: var(--muted-color);
-  margin-bottom: var(--spacing-3);
+  margin-bottom: var(--spacing-2);
   line-height: 1.5;
   font-weight: 500;
   text-align: center;
