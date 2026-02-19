@@ -11,6 +11,11 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
+# Windows multiprocessing support
+import multiprocessing
+if __name__ != "__main__":
+    multiprocessing.freeze_support()
+
 # Global worker pool instance (singleton pattern)
 _worker_pool = None
 _thread_pool = None

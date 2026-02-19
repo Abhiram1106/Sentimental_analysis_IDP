@@ -58,10 +58,17 @@ if TRANSFORMER_AVAILABLE:
         print(f"⚠️ Failed to load transformer model: {e}")
         TRANSFORMER_AVAILABLE = False
 
-# Initialize persistent worker pool for guaranteed parallel speedup
-print("🔥 Initializing persistent worker pool...")
-persistent_pool = get_persistent_pool()
-print("✅ Persistent pool ready for zero-overhead parallel processing!")
+# Persistent pool will be initialized on startup (Windows requires this)
+persistent_pool = None
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize persistent worker pool on server startup"""
+    global persistent_pool
+    print("🔥 Initializing persistent worker pool...")
+    persistent_pool = get_persistent_pool()
+    print("✅ Persistent pool ready for zero-overhead parallel processing!")
 
 
 class AnalyzeRequest(BaseModel):
