@@ -311,6 +311,9 @@ a:focus {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+  background-clip: border-box !important;
 }
 
 .model-badge::before {
@@ -864,7 +867,7 @@ input.is-invalid:focus {
   border-radius: var(--border-radius-sm);
 }
 
-- Refined & Clean */
+
 /* ============================================= */
 
 .model-selector-section {

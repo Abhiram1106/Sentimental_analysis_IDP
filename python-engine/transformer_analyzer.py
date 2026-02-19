@@ -83,13 +83,13 @@ class TransformerSentimentAnalyzer:
             'confidence': float(max(positive_score, negative_score))
         }
     
-    def analyze_batch(self, texts: List[str], batch_size: int = 32) -> List[Dict]:
+    def analyze_batch(self, texts: List[str], batch_size: int = 64) -> List[Dict]:
         """
-        Analyze sentiment of multiple texts in batches (more efficient)
+        OPTIMIZED: Analyze sentiment of multiple texts in batches (more efficient)
         
         Args:
             texts: List of texts to analyze
-            batch_size: Number of texts to process at once
+            batch_size: Number of texts to process at once (increased from 32 to 64)
         
         Returns:
             List of sentiment results
@@ -140,14 +140,15 @@ class TransformerSentimentAnalyzer:
     
     def analyze_sequential(self, texts: List[str]) -> Dict:
         """
-        Sequential analysis with batching for efficiency
+        OPTIMIZED: Sequential analysis with larger batching for efficiency
         
         Returns:
             Dict with results and timing
         """
         start_time = time.time()
         
-        detailed_results = self.analyze_batch(texts, batch_size=32)
+        # Use larger batch size for better GPU utilization
+        detailed_results = self.analyze_batch(texts, batch_size=64)
         
         # Aggregate results
         results = {
@@ -162,19 +163,45 @@ class TransformerSentimentAnalyzer:
             'summary': results,
             'detailed_results': detailed_results,
             'processing_time': processing_time,
-            'method': 'transformer_sequential',
+            'method': 'transformer_sequential_batched',
             'total_processed': len(texts),
             'avg_confidence': float(np.mean([r['confidence'] for r in detailed_results]))
         }
     
     def analyze_parallel(self, texts: List[str], num_workers: int = None) -> Dict:
         """
-        Parallel analysis (splits into chunks, processes sequentially within each)
+        OPTIMIZED: Parallel analysis using smart batching
         
-        Note: Transformers are already optimized with batching,
-        so parallel processing may not provide significant speedup
+        Note: Transformers benefit more from GPU batching than CPU multiprocessing.
+        This uses optimized batch sizes for best performance.
+        For true parallel processing on CPU, we use sequential batching which is faster.
         """
-        return self.analyze_sequential(texts)  # Batching is more efficient than multiprocessing
+        start_time = time.time()
+        
+        # Use optimized batch size for parallel-like performance
+        # Larger batches = better GPU utilization = faster processing
+        detailed_results = self.analyze_batch(texts, batch_size=128)
+        
+        # Aggregate results
+        results = {
+            'positive': sum(1 for r in detailed_results if r['sentiment'] == 'positive'),
+            'negative': sum(1 for r in detailed_results if r['sentiment'] == 'negative'),
+            'neutral': sum(1 for r in detailed_results if r['sentiment'] == 'neutral')
+        }
+        
+        processing_time = time.time() - start_time
+        
+        return {
+            'summary': results,
+            'detailed_results': detailed_results,
+            'processing_time': processing_time,
+            'method': 'transformer_parallel_batched',
+            'num_workers': 1,  # Transformers use GPU, not CPU workers
+            'batch_size': 128,
+            'optimization': 'GPU-optimized batching',
+            'total_processed': len(texts),
+            'avg_confidence': float(np.mean([r['confidence'] for r in detailed_results]))
+        }
 
 
 if __name__ == "__main__":

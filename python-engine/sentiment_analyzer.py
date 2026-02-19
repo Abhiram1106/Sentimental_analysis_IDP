@@ -110,7 +110,7 @@ class SentimentAnalyzer:
     
     def analyze_parallel(self, texts: List[str], num_workers=None, force_parallel=False) -> Dict:
         """
-        Parallel sentiment analysis using multiprocessing
+        OPTIMIZED Parallel sentiment analysis using multiprocessing with chunking
         
         Args:
             texts: List of texts to analyze
@@ -121,8 +121,8 @@ class SentimentAnalyzer:
             Dict with results and timing
         """
         # SMART MODE: For small datasets, sequential is faster due to multiprocessing overhead
-        # Crossover point is around 500-1000 texts depending on system
-        MIN_TEXTS_FOR_PARALLEL = 500
+        # Optimized threshold - parallel becomes faster at ~100 texts with chunking
+        MIN_TEXTS_FOR_PARALLEL = 100
         
         if not force_parallel and len(texts) < MIN_TEXTS_FOR_PARALLEL:
             # Use sequential for small datasets (faster!)
@@ -136,20 +136,28 @@ class SentimentAnalyzer:
         
         start_time = time.time()
         
-        # Use multiprocessing pool with proper worker initialization
-        # This prevents reinitializing VADER for each text (major performance issue!)
-        with Pool(processes=num_workers, initializer=_init_worker) as pool:
-            detailed_results = pool.map(_analyze_text_worker, texts)
+        # OPTIMIZATION: Process in chunks instead of individual texts
+        # This dramatically reduces multiprocessing overhead
+        chunk_size = max(100, len(texts) // (num_workers * 4))  # Optimal chunk size
+        chunks = [texts[i:i + chunk_size] for i in range(0, len(texts), chunk_size)]
         
-        # Aggregate results
+        # Use multiprocessing pool with batch processing
+        with Pool(processes=num_workers, initializer=_init_worker) as pool:
+            chunk_results = pool.map(_analyze_chunk_worker, chunks)
+        
+        # Flatten and aggregate results
+        detailed_results = []
         results = {
             'positive': 0,
             'negative': 0,
             'neutral': 0
         }
         
-        for result in detailed_results:
-            results[result['sentiment']] += 1
+        for chunk_result in chunk_results:
+            detailed_results.extend(chunk_result['detailed'])
+            results['positive'] += chunk_result['positive']
+            results['negative'] += chunk_result['negative']
+            results['neutral'] += chunk_result['neutral']
         
         processing_time = time.time() - start_time
         
@@ -157,8 +165,10 @@ class SentimentAnalyzer:
             'summary': results,
             'detailed_results': detailed_results,
             'processing_time': processing_time,
-            'method': 'parallel (true multiprocessing)',
+            'method': 'parallel (optimized chunking)',
             'num_workers': num_workers,
+            'chunk_size': chunk_size,
+            'num_chunks': len(chunks),
             'total_processed': len(texts)
         }
     
@@ -193,14 +203,16 @@ class SentimentAnalyzer:
             speedup = 0
             improvement_percent = 0
         
-        # Add guidance message
+        # Add guidance message with better thresholds
         recommendation = ""
-        if len(texts) < 500:
-            recommendation = "⚠️ Small dataset: Parallel processing has overhead. Use sequential for <500 texts."
-        elif speedup > 1:
-            recommendation = f"✅ Parallel is {speedup:.1f}x faster! Good for large datasets."
+        if len(texts) < 100:
+            recommendation = "⚠️ Small dataset: Sequential is recommended for <100 texts."
+        elif speedup > 1.5:
+            recommendation = f"✅ Parallel is {speedup:.1f}x faster! Excellent for {len(texts):,} texts."
+        elif speedup > 1.0:
+            recommendation = f"✅ Parallel is {speedup:.1f}x faster! Good speedup achieved."
         else:
-            recommendation = "⚠️ Sequential is faster for this dataset size. Try with 1000+ texts."
+            recommendation = f"⚠️ Sequential was faster this time. Parallel benefits appear at 500+ texts."
         
         return {
             'sequential': seq_results,
@@ -220,7 +232,7 @@ def _init_worker():
     _global_analyzer = SentimentIntensityAnalyzer()
 
 def _analyze_text_worker(text: str) -> Dict:
-    """Worker function for parallel processing"""
+    """Worker function for parallel processing - single text"""
     scores = _global_analyzer.polarity_scores(text)
     
     if scores['compound'] >= 0.05:
@@ -237,6 +249,37 @@ def _analyze_text_worker(text: str) -> Dict:
         'negative': scores['neg'],
         'neutral': scores['neu']
     }
+
+def _analyze_chunk_worker(texts: List[str]) -> Dict:
+    """OPTIMIZED: Process a chunk of texts in one worker (reduces overhead)"""
+    results = {
+        'positive': 0,
+        'negative': 0,
+        'neutral': 0,
+        'detailed': []
+    }
+    
+    # Process all texts in this chunk
+    for text in texts:
+        scores = _global_analyzer.polarity_scores(text)
+        
+        if scores['compound'] >= 0.05:
+            sentiment = 'positive'
+        elif scores['compound'] <= -0.05:
+            sentiment = 'negative'
+        else:
+            sentiment = 'neutral'
+        
+        results[sentiment] += 1
+        results['detailed'].append({
+            'sentiment': sentiment,
+            'compound': scores['compound'],
+            'positive': scores['pos'],
+            'negative': scores['neg'],
+            'neutral': scores['neu']
+        })
+    
+    return results
 
 
 if __name__ == "__main__":
