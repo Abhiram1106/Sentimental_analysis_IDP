@@ -231,10 +231,10 @@ a:focus {
 
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding-right: var(--spacing-6);
-  padding-left: var(--spacing-6);
+  padding-right: var(--spacing-4);
+  padding-left: var(--spacing-4);
 }
 
 .container-fluid {
@@ -455,9 +455,9 @@ a:focus {
 }
 
 .main-container {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto var(--spacing-6);
-  padding: var(--spacing-6);
+  padding: var(--spacing-4) var(--spacing-6);
   background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
   position: relative;
 }
@@ -804,11 +804,12 @@ input.is-invalid:focus {
 }
 
 .controls-row {
-  display: flex;
+  display: inline-flex;
   gap: var(--spacing-3);
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   margin-bottom: var(--spacing-5);
+  vertical-align: middle;
 }
 
 /* ============================================= */
@@ -1035,12 +1036,13 @@ input.is-invalid:focus {
 
 .input-section h2 {
   color: var(--dark);
-  margin-bottom: var(--spacing-3);
-  font-size: var(--h2-size);
+  margin-bottom: 0;
+  font-size: 1.5rem;
   font-weight: 600;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
+  margin-right: var(--spacing-4);
 }
 
 /* ============================================= */

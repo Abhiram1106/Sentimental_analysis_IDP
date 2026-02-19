@@ -440,33 +440,35 @@ function App() {
         {/* Text Analysis Tab */}
         {activeTab === 'text' && (
           <div className="input-section">
-            <h2>
-              <span>📝</span> Input Data
-            </h2>
-            
-            <div className="controls-row">
-              <button className="btn-secondary" onClick={handlePasteSample} disabled={loading}>
-                <span>📋</span> Paste Sample
-              </button>
-              <input
-                type="number"
-                value={datasetCount}
-                onChange={(e) => setDatasetCount(parseInt(e.target.value))}
-                min="100"
-                max="200000"
-                step="1000"
-                placeholder="Dataset size"
-                disabled={loading}
-                title="Large datasets (50k+) show parallel processing benefits"
-              />
-              <button className="btn-secondary" onClick={handleGenerateDataset} disabled={loading}>
-                <span>🎲</span> Generate {datasetCount.toLocaleString()} Texts
-              </button>
-              {textInput && (
-                <button className="btn-outline" onClick={handleClear} disabled={loading}>
-                  <span>🗑️</span> Clear
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'var(--spacing-5)', flexWrap: 'wrap', gap: 'var(--spacing-3)' }}>
+              <h2>
+                <span>📝</span> Input Data
+              </h2>
+              
+              <div className="controls-row">
+                <button className="btn-secondary" onClick={handlePasteSample} disabled={loading}>
+                  <span>📋</span> Paste Sample
                 </button>
-              )}
+                <input
+                  type="number"
+                  value={datasetCount}
+                  onChange={(e) => setDatasetCount(parseInt(e.target.value))}
+                  min="100"
+                  max="200000"
+                  step="1000"
+                  placeholder="Dataset size"
+                  disabled={loading}
+                  title="Large datasets (50k+) show parallel processing benefits"
+                />
+                <button className="btn-secondary" onClick={handleGenerateDataset} disabled={loading}>
+                  <span>🎲</span> Generate {datasetCount.toLocaleString()} Texts
+                </button>
+                {textInput && (
+                  <button className="btn-outline" onClick={handleClear} disabled={loading}>
+                    <span>🗑️</span> Clear
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="input-wrapper">
