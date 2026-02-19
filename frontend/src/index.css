@@ -808,8 +808,43 @@ input.is-invalid:focus {
   gap: var(--spacing-3);
   align-items: center;
   flex-wrap: nowrap;
-  margin-bottom: var(--spacing-5);
+  margin-bottom: 0;
   vertical-align: middle;
+}
+
+/* Input Header Row - Clean single-line layout */
+.input-header-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+  flex-wrap: wrap;
+}
+
+.input-header-row h2 {
+  margin: 0;
+}
+
+/* Dataset Count Input - Compact styling */
+.dataset-count-input {
+  width: 140px !important;
+  padding: var(--spacing-3) var(--spacing-4) !important;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  text-align: center;
+  border: 2px solid var(--gray-300) !important;
+  border-radius: var(--border-radius-lg);
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.dataset-count-input:hover {
+  border-color: var(--primary-light) !important;
+}
+
+.dataset-count-input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
 }
 
 /* ============================================= */

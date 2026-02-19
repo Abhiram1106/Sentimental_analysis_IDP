@@ -440,7 +440,7 @@ function App() {
         {/* Text Analysis Tab */}
         {activeTab === 'text' && (
           <div className="input-section">
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'var(--spacing-5)', flexWrap: 'wrap', gap: 'var(--spacing-3)' }}>
+            <div className="input-header-row">
               <h2>
                 <span>📝</span> Input Data
               </h2>
@@ -451,6 +451,7 @@ function App() {
                 </button>
                 <input
                   type="number"
+                  className="dataset-count-input"
                   value={datasetCount}
                   onChange={(e) => setDatasetCount(parseInt(e.target.value))}
                   min="100"
