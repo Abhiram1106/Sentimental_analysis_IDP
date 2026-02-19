@@ -1,0 +1,20 @@
+fastapi==0.109.0
+uvicorn==0.27.0
+pandas==2.1.4
+vaderSentiment==3.3.2
+pydantic==2.5.3
+python-multipart==0.0.6
+
+# Premium ML Models
+transformers==4.36.2
+torch==2.1.2
+sentencepiece==0.1.99
+accelerate==0.25.0
+
+# File Processing
+python-magic-bin==0.4.14
+openpyxl==3.1.2
+
+# Trend Analysis
+scipy==1.11.4
+scikit-learn==1.3.2
