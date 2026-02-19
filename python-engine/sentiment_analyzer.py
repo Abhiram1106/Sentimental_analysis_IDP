@@ -144,7 +144,11 @@ class SentimentAnalyzer:
         """
         # CRITICAL: VADER is EXTREMELY fast - only use parallel for massive datasets
         # Sequential processes ~500k+ texts/sec, parallel overhead is significant
-        MIN_TEXTS_FOR_PARALLEL = 50000  # Only worth it for 50k+ texts
+        MIN_TEXTS_FOR_PARALLEL = 10000  # Lowered threshold for better user experience
+        
+        # When num_workers is explicitly specified, user wants parallel mode
+        if num_workers is not None:
+            force_parallel = True
         
         if not force_parallel and len(texts) < MIN_TEXTS_FOR_PARALLEL:
             # Use sequential for small/medium datasets (faster!)
@@ -158,9 +162,9 @@ class SentimentAnalyzer:
         
         start_time = time.time()
         
-        # MASSIVE CHUNKS: Process 5000+ texts per chunk to minimize overhead
-        # Overhead is ~0.1-0.5s per chunk, so fewer chunks = less overhead
-        chunk_size = max(5000, len(texts) // num_workers)  # At least 5000 per chunk
+        # OPTIMIZED CHUNKS: Balance between overhead and parallelism
+        # Use actual num_workers to distribute work evenly
+        chunk_size = max(2000, len(texts) // num_workers)  # At least 2000 per chunk
         chunks = [texts[i:i + chunk_size] for i in range(0, len(texts), chunk_size)]
         
         # Use multiprocessing pool with optimized chunking
@@ -194,14 +198,18 @@ class SentimentAnalyzer:
             'total_processed': len(texts)
         }
     
-    def compare_performance(self, texts: List[str]) -> Dict:
+    def compare_performance(self, texts: List[str], num_workers=None) -> Dict:
         """
         Compare sequential vs parallel processing with proper methodology
+        
+        Args:
+            texts: List of texts to analyze
+            num_workers: Number of worker processes (when specified, forces parallel)
         
         Returns:
             Dict with both results and speedup metrics
         """
-        print(f"Analyzing {len(texts):,} texts...")
+        print(f"Analyzing {len(texts):,} texts with {num_workers or 'auto'} workers...")
         
         # Clear cache to ensure fair comparison
         self.clear_cache()
@@ -213,13 +221,10 @@ class SentimentAnalyzer:
         # Clear cache for parallel
         self.clear_cache()
         
-        # Parallel - ONLY force if dataset is large enough
-        print("Running parallel analysis...")
-        if len(texts) >= 50000:
-            par_results = self.analyze_parallel(texts, force_parallel=True)
-        else:
-            # Don't force parallel for small datasets - just use smart mode
-            par_results = self.analyze_parallel(texts, force_parallel=False)
+        # Parallel - Force when num_workers is specified OR dataset is large
+        print(f"Running parallel analysis with {num_workers or cpu_count()} workers...")
+        force = num_workers is not None or len(texts) >= 10000
+        par_results = self.analyze_parallel(texts, num_workers=num_workers, force_parallel=force)
         
         # Calculate speedup (avoid division by zero)
         if par_results['processing_time'] > 0 and seq_results['processing_time'] > 0:
@@ -231,16 +236,17 @@ class SentimentAnalyzer:
         
         # Add realistic guidance based on VADER's actual performance
         recommendation = ""
-        if len(texts) < 50000:
-            recommendation = f"⚠️ Sequential is faster for <50,000 texts. VADER processes ~500k texts/sec sequentially. Dataset: {len(texts):,} texts."
-        elif speedup > 2.0:
-            recommendation = f"✅ Parallel is {speedup:.1f}x faster! Excellent speedup on {len(texts):,} texts."
-        elif speedup > 1.2:
-            recommendation = f"✅ Parallel is {speedup:.1f}x faster! Good speedup on large dataset."
-        elif speedup > 0.8:
-            recommendation = f"≈ Nearly equal performance. For {len(texts):,} texts, both work well."
+        workers_used = par_results.get('num_workers', num_workers or cpu_count())
+        if speedup > 2.0:
+            recommendation = f"✅ Parallel is {speedup:.1f}x faster! Excellent speedup with {workers_used} workers on {len(texts):,} texts."
+        elif speedup > 1.5:
+            recommendation = f"✅ Parallel is {speedup:.1f}x faster! Good speedup with {workers_used} workers."
+        elif speedup > 1.0:
+            recommendation = f"✅ Parallel is {speedup:.1f}x faster with {workers_used} workers."
+        elif speedup > 0.7:
+            recommendation = f"≈ Nearly equal performance. Using {workers_used} workers on {len(texts):,} texts."
         else:
-            recommendation = f"⚠️ Sequential was faster. Parallel benefits appear at 100k+ texts. Current: {len(texts):,} texts."
+            recommendation = f"⚠️ Sequential was {(1/speedup):.1f}x faster. For small datasets (<10k), overhead dominates. Current: {len(texts):,} texts."
         
         return {
             'sequential': seq_results,

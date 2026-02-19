@@ -19,11 +19,15 @@ export const analyzeSentiment = async (texts, parallel = true, model = 'vader', 
   }
 };
 
-export const comparePerformance = async (texts) => {
+export const comparePerformance = async (texts, numWorkers = null) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/analyze/compare`, {
+    const payload = {
       texts,
-    });
+    };
+    if (numWorkers !== null) {
+      payload.num_workers = numWorkers;
+    }
+    const response = await axios.post(`${API_BASE_URL}/analyze/compare`, payload);
     return response.data;
   } catch (error) {
     throw error.response?.data || error;

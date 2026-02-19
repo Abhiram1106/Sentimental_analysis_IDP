@@ -172,7 +172,7 @@ async def compare_performance(request: AnalyzeRequest):
         if not request.texts:
             raise HTTPException(status_code=400, detail="No texts provided")
         
-        result = vader_analyzer.compare_performance(request.texts)
+        result = vader_analyzer.compare_performance(request.texts, num_workers=request.num_workers)
         
         return {
             "sequential": {

@@ -105,7 +105,7 @@ function App() {
     setLoading(true);
 
     try {
-      const response = await comparePerformance(texts);
+      const response = await comparePerformance(texts, numWorkers);
       setComparisonResults(response.data);
       // Also set regular results to show the charts
       setResults({
