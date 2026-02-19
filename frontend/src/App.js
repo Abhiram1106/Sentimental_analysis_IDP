@@ -15,7 +15,7 @@ import './index.css';
 
 function App() {
   const [textInput, setTextInput] = useState('');
-  const [datasetCount, setDatasetCount] = useState(10000);
+  const [datasetCount, setDatasetCount] = useState(100000);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [comparisonResults, setComparisonResults] = useState(null);
@@ -453,9 +453,11 @@ function App() {
                 value={datasetCount}
                 onChange={(e) => setDatasetCount(parseInt(e.target.value))}
                 min="100"
-                max="50000"
+                max="200000"
+                step="1000"
                 placeholder="Dataset size"
                 disabled={loading}
+                title="Large datasets (50k+) show parallel processing benefits"
               />
               <button className="btn-secondary" onClick={handleGenerateDataset} disabled={loading}>
                 <span>🎲</span> Generate {datasetCount.toLocaleString()} Texts
