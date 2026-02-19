@@ -15,6 +15,7 @@ from sentiment_analyzer import SentimentAnalyzer
 from dataset_generator import DatasetGenerator
 from batch_processor import BatchProcessor
 from trend_analyzer import TrendAnalyzer
+from persistent_pool import get_persistent_pool  # Import persistent pool
 
 # Optional: Import transformer analyzer (requires large dependencies)
 try:
@@ -56,6 +57,11 @@ if TRANSFORMER_AVAILABLE:
     except Exception as e:
         print(f"⚠️ Failed to load transformer model: {e}")
         TRANSFORMER_AVAILABLE = False
+
+# Initialize persistent worker pool for guaranteed parallel speedup
+print("🔥 Initializing persistent worker pool...")
+persistent_pool = get_persistent_pool()
+print("✅ Persistent pool ready for zero-overhead parallel processing!")
 
 
 class AnalyzeRequest(BaseModel):
