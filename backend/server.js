@@ -50,7 +50,7 @@ app.get('/api/health', (req, res) => {
 // Analyze sentiment (parallel processing)
 app.post('/api/analyze', async (req, res) => {
   try {
-    const { texts, parallel = true, model = 'vader' } = req.body;
+    const { texts, parallel = true, model = 'vader', num_workers } = req.body;
 
     if (!texts || !Array.isArray(texts) || texts.length === 0) {
       return res.status(400).json({
@@ -61,13 +61,22 @@ app.post('/api/analyze', async (req, res) => {
 
     console.log(`📊 Processing ${texts.length} texts using ${parallel ? 'parallel' : 'sequential'} method with ${model} model...`);
 
-    // Call Python service
-    const response = await axios.post(`${PYTHON_SERVICE_URL}/analyze`, {
+    // Build request payload
+    const payload = {
       texts,
       parallel,
       model,
-    }, {
-      timeout: 120000, // 2 minute timeout for transformer models
+    };
+    if (num_workers !== undefined && num_workers !== null) {
+      payload.num_workers = num_workers;
+    }
+
+    // Increase timeout for ensemble models (3 models running)
+    const timeout = model === 'ensemble' ? 300000 : 120000; // 5 min for ensemble, 2 min for others
+
+    // Call Python service
+    const response = await axios.post(`${PYTHON_SERVICE_URL}/analyze`, payload, {
+      timeout,
     });
 
     const result = response.data;

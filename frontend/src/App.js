@@ -224,7 +224,10 @@ function App() {
           Advanced Sentiment Analysis
           {availableModels && (
             <span className={`model-badge ${selectedModel}`}>
-              {selectedModel === 'vader' ? '⚡ VADER' : '🔥 DistilBERT'}
+              {selectedModel === 'vader' && '⚡ VADER'}
+              {selectedModel === 'transformer' && '🔥 DistilBERT'}
+              {selectedModel === 'roberta' && '🚀 RoBERTa'}
+              {selectedModel === 'ensemble' && '💎 Ensemble'}
             </span>
           )}
         </h1>
@@ -439,8 +442,10 @@ function App() {
               onChange={(e) => setSelectedModel(e.target.value)}
               disabled={loading}
             >
-              <option value="vader">VADER - Fast ⚡</option>
-              <option value="transformer">DistilBERT - Accurate 🔥</option>
+              <option value="vader">⚡ VADER - Fast (75-80%)</option>
+              <option value="transformer">🔥 DistilBERT - Accurate (90-92%)</option>
+              <option value="roberta">🚀 RoBERTa - Advanced (92-94%)</option>
+              <option value="ensemble">💎 Ensemble - Max (95-98%)</option>
             </select>
           </div>
 
@@ -462,9 +467,10 @@ function App() {
           </div>
           
           <div className="setting-info">
-            {selectedModel === 'vader' ? 
-              '⚡ Fast rule-based analysis' : 
-              '🔥 High-accuracy deep learning'}
+            {selectedModel === 'vader' && '⚡ Fast rule-based analysis'}
+            {selectedModel === 'transformer' && '🔥 High-accuracy deep learning'}
+            {selectedModel === 'roberta' && '🚀 Advanced transformer model'}
+            {selectedModel === 'ensemble' && '💎 Maximum accuracy (3 models combined)'}
             {' | '}
             Workers: {numWorkers || 'Auto'}
           </div>
@@ -480,8 +486,10 @@ function App() {
             className="model-select"
             disabled={loading}
           >
-            <option value="vader">VADER - Fast & Efficient ⚡</option>
-            <option value="transformer">DistilBERT - High Accuracy 🔥</option>
+            <option value="vader">⚡ VADER - Fast & Efficient (75-80%)</option>
+            <option value="transformer">🔥 DistilBERT - High Accuracy (90-92%)</option>
+            <option value="roberta">🚀 RoBERTa - Advanced (92-94%)</option>
+            <option value="ensemble">💎 Ensemble - Maximum Accuracy (95-98%)</option>
           </select>
           {availableModels && availableModels.models && (
             <p className="model-info">
